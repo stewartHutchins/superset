@@ -836,7 +836,25 @@ HTML_SANITIZATION = True
 #   }
 # }
 # Be careful when extending the default schema to avoid XSS attacks.
-HTML_SANITIZATION_SCHEMA_EXTENSIONS: dict[str, Any] = {}
+HTML_SANITIZATION_SCHEMA_EXTENSIONS: dict[str, Any] = {
+    "tagNames": ["iframe"],
+    "attributes": {
+        "iframe": [
+            "height",
+            "loading",
+            "name",
+            "src",
+            "width",
+        ]
+    },
+    "required": {
+        "iframe": {
+            "credentialless": "true",
+            "referrerpolicy": "no-referrer",
+        },
+    }
+
+}
 
 # Chrome allows up to 6 open connections per domain at a time. When there are more
 # than 6 slices in dashboard, a lot of time fetch requests are queued up and wait for
@@ -1629,6 +1647,12 @@ TALISMAN_CONFIG = {
             "'self'",
             "https://api.mapbox.com",
             "https://events.mapbox.com",
+        ],
+        "frame-src": [
+            "'self'",
+            "https://www.youtube.com",
+            "https://www.bbc.co.uk",
+            "https://www.bbc.com;",
         ],
         "object-src": "'none'",
         "style-src": [
