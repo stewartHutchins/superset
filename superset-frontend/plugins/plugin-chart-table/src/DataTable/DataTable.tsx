@@ -38,7 +38,6 @@ import {
   IdType,
   Row,
 } from 'react-table';
-import { matchSorter, rankings } from 'match-sorter';
 import { typedMemo, usePrevious } from '@superset-ui/core';
 import { isEqual } from 'lodash';
 import GlobalFilter, { GlobalFilterProps } from './components/GlobalFilter';
@@ -50,6 +49,7 @@ import SimplePagination from './components/Pagination';
 import useSticky from './hooks/useSticky';
 import { PAGE_SIZE_OPTIONS } from '../consts';
 import { sortAlphanumericCaseInsensitive } from './utils/sortAlphanumericCaseInsensitive';
+import Fuse from 'fuse.js';
 
 export interface DataTableProps<D extends object> extends TableOptions<D> {
   tableClassName?: string;
@@ -165,10 +165,8 @@ export default typedMemo(function DataTable<D extends object>({
       // allow searching by "col1_value col2_value"
       const joinedString = (row: Row<D>) =>
         columnIds.map(x => row.values[x]).join(' ');
-      return matchSorter(rows, filterValue, {
-        keys: [...columnIds, joinedString],
-        threshold: rankings.ACRONYM,
-      }) as typeof rows;
+      const fuse = new Fuse(rows, { keys: ['dummy'], getFn: joinedString });
+      return fuse.search(filterValue).map(result => result.item);
     },
     [],
   );
